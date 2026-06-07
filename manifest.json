@@ -1,0 +1,9 @@
+{
+"name":"Eiken Kids English",
+"short_name":"EikenKids",
+"start_url":"./index.html",
+"display":"standalone",
+"theme_color":"#4CAF50",
+"background_color":"#ffffff",
+"icons":[]
+}
