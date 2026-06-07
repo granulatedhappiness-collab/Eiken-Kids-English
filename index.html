@@ -117,6 +117,10 @@ style="width:70%;"
 placeholder="Gboardの🎤で英語を入力">
 
 <button onclick="sendAnswer()">Send</button>
+<button onclick="startSpeechRecognition()">🎤 Speak Answer</button>
+<button onclick="showReview()">📖 Review Notebook</button>
+<div id="feedback" style="margin-top:10px;"></div>
+<div id="reviewArea" style="margin-top:10px;"></div>
 
 </div>
 
@@ -274,6 +278,8 @@ if(score>=60) badge="🏅 English Star";
 if(score>=90) badge="🏆 Eiken Challenger";
 document.getElementById("badge").textContent=badge;
 
+analyzeAnswer(text);
+
 currentQuestion++;
 
 if(currentQuestion<currentLesson.length){
@@ -303,6 +309,50 @@ document.getElementById("highScore").textContent=highScore;
 
 }
 
+}
+
+
+function analyzeAnswer(text){
+ let natural=text;
+ let reason="Great job!";
+ let example=text;
+
+ if(text.toLowerCase().includes("i like dog")){
+   natural="I like dogs.";
+   reason="dogs のように複数形が自然です。";
+   example="I like dogs very much.";
+ }
+
+ document.getElementById("feedback").innerHTML=
+ "<h3>📚 Teacher Feedback</h3>"+
+ "<b>Original:</b> "+text+"<br>"+
+ "<b>Natural:</b> "+natural+"<br>"+
+ "<b>Reason:</b> "+reason+"<br>"+
+ "<b>Example:</b> "+example;
+
+ let notes=JSON.parse(localStorage.getItem("reviewNotes")||"[]");
+ notes.push({original:text,natural:natural,reason:reason,example:example});
+ localStorage.setItem("reviewNotes",JSON.stringify(notes));
+}
+
+function showReview(){
+ let notes=JSON.parse(localStorage.getItem("reviewNotes")||"[]");
+ let html="<h3>📖 Review Notebook</h3>";
+ notes.forEach((n,i)=>{
+   html += (i+1)+".<br><b>Original:</b> "+n.original+"<br><b>Natural:</b> "+n.natural+"<br><br>";
+ });
+ document.getElementById("reviewArea").innerHTML=html;
+}
+
+function startSpeechRecognition(){
+ const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+ if(!SR){ alert("Speech Recognition is not supported."); return; }
+ const rec=new SR();
+ rec.lang="en-US";
+ rec.onresult=(e)=>{
+   document.getElementById("answer").value=e.results[0][0].transcript;
+ };
+ rec.start();
 }
 
 </script>
