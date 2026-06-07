@@ -1,8 +1,276 @@
-<!DOCTYPE html><html lang='ja'><head>
-<meta charset='UTF-8'><meta name='viewport' content='width=device-width,initial-scale=1'>
-<link rel='manifest' href='manifest.json'><title>Eiken Kids English</title>
-</head><body>
-<h1>🎓 Eiken Kids English (Complete PWA)</h1>
-<p>Level選択、Teacher選択、速度調整、スコア保存対応版です。</p>
-<p>このZIPは完成版の雛形です。GitHub Pagesへアップロードしてください。</p>
-</body></html>
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Eiken Kids English</title>
+
+<style>
+body{
+    font-family:Arial,sans-serif;
+    max-width:900px;
+    margin:auto;
+    padding:20px;
+    background:#f5f9ff;
+}
+
+.card{
+    background:white;
+    border-radius:12px;
+    padding:15px;
+    margin-bottom:15px;
+    box-shadow:0 2px 6px rgba(0,0,0,0.1);
+}
+
+button{
+    padding:10px 15px;
+    margin:5px;
+    font-size:16px;
+}
+
+select,input{
+    padding:8px;
+    font-size:16px;
+}
+
+#chat{
+    height:300px;
+    overflow-y:auto;
+    border:1px solid #ccc;
+    padding:10px;
+    background:white;
+}
+
+.teacher{
+    color:blue;
+    margin-bottom:10px;
+}
+
+.user{
+    color:green;
+    margin-bottom:10px;
+}
+</style>
+</head>
+
+<body>
+
+<h1>🎓 Eiken Kids English</h1>
+
+<div class="card">
+
+<label>Teacher:</label>
+
+<select id="teacher">
+<option value="female">👩 Emma</option>
+<option value="male">👨 James</option>
+</select>
+
+<br><br>
+
+<label>Level:</label>
+
+<select id="level">
+<option value="1">Level 1 (英検5級前半)</option>
+<option value="2">Level 2 (英検5級後半)</option>
+<option value="3">Level 3 (英検4級前半)</option>
+<option value="4">Level 4 (英検4級後半)</option>
+</select>
+
+<br><br>
+
+<label>Teacher Speed:</label>
+
+<input
+type="range"
+id="speed"
+min="0.5"
+max="1.5"
+step="0.1"
+value="0.8">
+
+<span id="speedValue">0.8</span>
+
+<br><br>
+
+<button onclick="startLesson()">▶ Start Lesson</button>
+
+<button onclick="repeatTeacher()">🔊 Repeat</button>
+
+</div>
+
+<div id="chat"></div>
+
+<div class="card">
+
+<input
+id="answer"
+style="width:70%;"
+placeholder="Gboardの🎤で英語を入力">
+
+<button onclick="sendAnswer()">Send</button>
+
+</div>
+
+<script>
+
+let speechRate=0.8;
+
+let currentLesson=[];
+let currentQuestion=0;
+
+let lastTeacher="";
+
+const lessons={
+
+1:[
+"What is your name?",
+"How are you today?",
+"What color do you like?",
+"What animal do you like?"
+],
+
+2:[
+"Do you like soccer?",
+"What food do you like?",
+"Who is in your family?",
+"What day is it today?"
+],
+
+3:[
+"What time do you get up?",
+"Can you swim?",
+"Where do you study?",
+"What do you do after school?"
+],
+
+4:[
+"What will you do this weekend?",
+"What is your favorite subject?",
+"Tell me about your hobby.",
+"What do you want to be in the future?"
+]
+
+};
+
+document
+.getElementById("speed")
+.addEventListener("input",e=>{
+
+speechRate=parseFloat(e.target.value);
+
+document
+.getElementById("speedValue")
+.textContent=e.target.value;
+
+});
+
+function addMessage(text,cls){
+
+const div=document.createElement("div");
+
+div.className=cls;
+
+div.textContent=text;
+
+document
+.getElementById("chat")
+.appendChild(div);
+
+document
+.getElementById("chat")
+.scrollTop=99999;
+
+}
+
+function speak(text){
+
+const u=new SpeechSynthesisUtterance(text);
+
+u.lang="en-US";
+
+u.rate=speechRate;
+
+speechSynthesis.speak(u);
+
+}
+
+function repeatTeacher(){
+
+if(lastTeacher){
+
+speak(lastTeacher);
+
+}
+
+}
+
+function startLesson(){
+
+document.getElementById("chat").innerHTML="";
+
+currentQuestion=0;
+
+const level=
+document.getElementById("level").value;
+
+currentLesson=lessons[level];
+
+askQuestion();
+
+}
+
+function askQuestion(){
+
+const q=currentLesson[currentQuestion];
+
+lastTeacher=q;
+
+addMessage("Teacher: "+q,"teacher");
+
+speak(q);
+
+}
+
+function sendAnswer(){
+
+const box=
+document.getElementById("answer");
+
+const text=box.value.trim();
+
+if(!text) return;
+
+addMessage("You: "+text,"user");
+
+box.value="";
+
+currentQuestion++;
+
+if(currentQuestion<currentLesson.length){
+
+setTimeout(()=>{
+
+askQuestion();
+
+},500);
+
+}else{
+
+addMessage(
+"🎉 Lesson Complete!",
+"teacher"
+);
+
+speak(
+"Great job! Lesson complete!"
+);
+
+}
+
+}
+
+</script>
+
+</body>
+</html>
