@@ -96,6 +96,14 @@ value="0.8">
 <button onclick="startLesson()">▶ Start Lesson</button>
 
 <button onclick="repeatTeacher()">🔊 Repeat</button>
+<hr>
+<div>
+⭐ Score: <span id="score">0</span><br><br>
+🏅 Badge: <span id="badge">🌱 Beginner</span><br><br>
+📈 High Score: <span id="highScore">0</span><br><br>
+🔥 Study Days: <span id="studyDays">0</span>
+</div>
+
 
 </div>
 
@@ -120,6 +128,8 @@ let currentLesson=[];
 let currentQuestion=0;
 
 let lastTeacher="";
+let score=0;
+let highScore=parseInt(localStorage.getItem("highScore")||"0");
 
 const lessons={
 
@@ -152,6 +162,13 @@ const lessons={
 ]
 
 };
+
+document.addEventListener("DOMContentLoaded",()=>{
+document.getElementById("highScore").textContent=highScore;
+let days=parseInt(localStorage.getItem("studyDays")||"0")+1;
+localStorage.setItem("studyDays",days);
+document.getElementById("studyDays").textContent=days;
+});
 
 document
 .getElementById("speed")
@@ -208,6 +225,9 @@ speak(lastTeacher);
 function startLesson(){
 
 document.getElementById("chat").innerHTML="";
+score=0;
+document.getElementById("score").textContent=0;
+document.getElementById("badge").textContent="🌱 Beginner";
 
 currentQuestion=0;
 
@@ -245,6 +265,15 @@ addMessage("You: "+text,"user");
 
 box.value="";
 
+if(text.split(" ").length>=3){score+=10;}else{score+=5;}
+document.getElementById("score").textContent=score;
+
+let badge="🌱 Beginner";
+if(score>=30) badge="⭐ Good Speaker";
+if(score>=60) badge="🏅 English Star";
+if(score>=90) badge="🏆 Eiken Challenger";
+document.getElementById("badge").textContent=badge;
+
 currentQuestion++;
 
 if(currentQuestion<currentLesson.length){
@@ -265,6 +294,12 @@ addMessage(
 speak(
 "Great job! Lesson complete!"
 );
+
+if(score>highScore){
+highScore=score;
+localStorage.setItem("highScore",highScore);
+document.getElementById("highScore").textContent=highScore;
+}
 
 }
 
