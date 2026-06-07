@@ -55,7 +55,17 @@ select,input{
 
 <body>
 
-<h1>🎓 Eiken Kids English</h1>
+
+<h1>🎓 English Learning Hub</h1>
+
+<div class="card">
+<label>Course:</label>
+<select id="course" onchange="changeCourse()">
+<option value="kids">👦 Kids English</option>
+<option value="qa">👨‍💼 Semiconductor QA English</option>
+</select>
+</div>
+
 
 <div class="card">
 
@@ -118,7 +128,7 @@ placeholder="Gboardの🎤で英語を入力">
 
 <button onclick="sendAnswer()">Send</button>
 <button onclick="startSpeechRecognition()">🎤 Speak Answer</button>
-<button onclick="showReview()">📖 Review Notebook</button>
+<button onclick="showReview()">📖 Review Notebook</button><button onclick="showQAVocabulary()">📘 QA Vocabulary</button>
 <div id="feedback" style="margin-top:10px;"></div>
 <div id="reviewArea" style="margin-top:10px;"></div>
 
@@ -166,6 +176,57 @@ const lessons={
 ]
 
 };
+
+
+const qaLessons={
+1:[
+"We found a defect in lot A123.",
+"What corrective action will you take?",
+"When will the investigation be completed?"
+],
+2:[
+"What is the root cause?",
+"Have you implemented preventive actions?",
+"How did you verify the effectiveness?"
+],
+3:[
+"Can you provide the evidence?",
+"Was the procedure updated?",
+"Is the audit record available?"
+]
+};
+
+function changeCourse(){
+ const c=document.getElementById('course').value;
+ const level=document.getElementById('level');
+ if(c==='qa'){
+   level.innerHTML=`
+   <option value="1">Customer Complaint</option>
+   <option value="2">CAPA</option>
+   <option value="3">Audit</option>`;
+ }else{
+   level.innerHTML=`
+   <option value="1">Level 1 (英検5級前半)</option>
+   <option value="2">Level 2 (英検5級後半)</option>
+   <option value="3">Level 3 (英検4級前半)</option>
+   <option value="4">Level 4 (英検4級後半)</option>`;
+ }
+}
+
+function showQAVocabulary(){
+ document.getElementById("reviewArea").innerHTML=`
+ <h3>📘 QA Vocabulary</h3>
+ <table border='1' cellpadding='5'>
+ <tr><td>Defect</td><td>不良</td></tr>
+ <tr><td>Yield</td><td>歩留まり</td></tr>
+ <tr><td>Root Cause</td><td>根本原因</td></tr>
+ <tr><td>Corrective Action</td><td>是正処置</td></tr>
+ <tr><td>CAPA</td><td>是正予防処置</td></tr>
+ <tr><td>Audit</td><td>監査</td></tr>
+ <tr><td>Evidence</td><td>エビデンス</td></tr>
+ <tr><td>Failure Analysis</td><td>故障解析</td></tr>
+ </table>`;
+}
 
 document.addEventListener("DOMContentLoaded",()=>{
 document.getElementById("highScore").textContent=highScore;
@@ -238,7 +299,13 @@ currentQuestion=0;
 const level=
 document.getElementById("level").value;
 
-currentLesson=lessons[level];
+
+if(document.getElementById("course").value==="qa"){
+ currentLesson=qaLessons[level];
+}else{
+ currentLesson=lessons[level];
+}
+
 
 askQuestion();
 
@@ -317,7 +384,15 @@ function analyzeAnswer(text){
  let reason="Great job!";
  let example=text;
 
- if(text.toLowerCase().includes("i like dog")){
+ 
+if(text.toLowerCase().includes("we investigate root cause")){
+ natural="We are investigating the root cause.";
+ reason="進行中の調査は現在進行形が自然です。";
+ example="We are investigating the root cause of the defect.";
+}
+
+if(text.toLowerCase().includes("i like dog")){
+
    natural="I like dogs.";
    reason="dogs のように複数形が自然です。";
    example="I like dogs very much.";
